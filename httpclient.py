@@ -33,13 +33,12 @@ class HTTPResponse(object):
         self.body = body
 
 class HTTPClient(object):
-    #def get_host_port(self,url):
-
     def connect(self, host, port):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.connect((host, port))
         return None
 
+    # TODO: implement these methods using the data arg, split accordingly into headers and body
     def get_code(self, data):
         return None
 
@@ -68,8 +67,31 @@ class HTTPClient(object):
         return buffer.decode('utf-8')
 
     def GET(self, url, args=None):
+        # if the command is GET, send a GET request to the server and return the response
         code = 500
         body = ""
+
+        # parse the url
+        parsed_url = urllib.parse.urlparse(url)
+        port = parsed_url.port
+        host = parsed_url.hostname
+
+        # if no port is specified, use the correct port depending on the scheme (443/80)
+        if port == None and parsed_url.scheme == "http":
+            port = 80
+        elif port == None and parsed_url.scheme == "https":
+            port = 443
+        
+        # connect to the host
+        self.connect(host, port)
+        # set path
+        path = parsed_url.path
+        if parsed_url.path == "":
+            path = "/"
+
+        # create the request
+        request = "GET {} HTTP/1.1\r\nHost: {}\r\nAccept: */*\r\nConnection: close\r\n\r\n".format(path, host)
+        # TODO: send response to server and parse/return the response
         return HTTPResponse(code, body)
 
     def POST(self, url, args=None):
@@ -82,7 +104,15 @@ class HTTPClient(object):
             return self.POST( url, args )
         else:
             return self.GET( url, args )
-    
+        
+    def getMethod(self, url, method="GET", args=None):
+        # check whether the request is a GET or POST & route accordingly
+        if method == "POST":
+            return self.post(url, args)
+        else:
+            return self.get(url)
+        
+
 if __name__ == "__main__":
     client = HTTPClient()
     command = "GET"

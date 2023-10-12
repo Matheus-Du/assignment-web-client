@@ -109,8 +109,9 @@ class HTTPClient(object):
         # citation: GitHub copilot
         if args is None:
             args = ""
+        args = urllib.parse.urlencode(args)
         request = "POST {} HTTP/1.1\r\nHost: {}\r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length: {}\r\nConnection: close\r\n\r\n".format(path, host, len(args))
-        request += urllib.parse.urlencode(args)
+        request += args
 
         # send the request and parse the response into code, headers, and body
         self.sendall(request)

@@ -82,6 +82,7 @@ class HTTPClient(object):
         self.connect(host, port)
 
         # create and send the request
+        # citation: Microsoft, GitHub Copilot, 11-10-2023
         request = "GET {} HTTP/1.1\r\nHost: {}\r\nAccept: */*\r\nConnection: close\r\n\r\n".format(path, host)
         self.sendall(request)
 
@@ -106,10 +107,10 @@ class HTTPClient(object):
         self.connect(host, port)
 
         # create the request and parse args
-        # citation: GitHub copilot
         if args is None:
             args = ""
         args = urllib.parse.urlencode(args)
+        # citation: Microsoft, GitHub Copilot, 11-10-2023
         request = "POST {} HTTP/1.1\r\nHost: {}\r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length: {}\r\nConnection: close\r\n\r\n".format(path, host, len(args))
         request += args
 

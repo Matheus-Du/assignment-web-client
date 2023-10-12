@@ -79,7 +79,7 @@ class HTTPClient(object):
         request = "GET {} HTTP/1.1\r\nHost: {}\r\nAccept: */*\r\nConnection: close\r\n\r\n".format(path, host)
         self.sendall(request)
 
-        # receive the response and parse it into headers, code, and body
+        # receive the response and parse it into code, headers, and body
         response = self.recvall(self.socket)
         self.close()
         # TODO: implement these functions by splitting the response (verify the format of the response first)
@@ -98,7 +98,26 @@ class HTTPClient(object):
 
         # parse the url
         host, port, path = self.parseURL(url)
+        self.connect(host, port)
 
+        # create the request and parse args
+        # citation: GitHub copilot
+        request = "POST {} HTTP/1.1\r\nHost: {}\r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length: {}\r\nConnection: close\r\n\r\n".format(path, host, len(args))
+        if args is None:
+            request += urllib.parse.urlencode("")
+        else:
+            request += urllib.parse.urlencode(args)
+
+        # send the request and parse the response into code, headers, and body
+        self.sendall(request)
+        response = self.recvall(self.socket)
+        self.close()
+        code = self.get_code(response)
+        headers = self.get_headers(response)
+        body = self.get_body(response)
+
+        # print the response as per requirements & return the response as an HTTPResponse object
+        print("{}\n{}\n{}".format(code, headers, body))
         return HTTPResponse(code, body)
     
     def parseURL(self, url):
@@ -122,9 +141,9 @@ class HTTPClient(object):
 
     def command(self, url, command="GET", args=None):
         if (command == "POST"):
-            return self.POST( url, args )
+            return self.POST(url, args)
         else:
-            return self.GET( url, args )
+            return self.GET(url, args)
         
     def getMethod(self, url, method="GET", args=None):
         # check whether the request is a GET or POST & route accordingly

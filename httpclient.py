@@ -38,15 +38,21 @@ class HTTPClient(object):
         self.socket.connect((host, port))
         return None
 
-    # TODO: implement these methods using the data arg, split accordingly into headers and body
     def get_code(self, data):
-        return None
+        # return the status code of the response as an int
+        # citation (+ for other get methods below): https://www.w3.org/Protocols/rfc2616/rfc2616-sec6.html
+        code = data.split("\r\n")[0].split()[1]
+        return code
 
     def get_headers(self,data):
-        return None
+        # return the headers of the response as a string
+        headers = data.split("\r\n\r\n")[0]
+        return headers
 
     def get_body(self, data):
-        return None
+        # return the body of the response as a string
+        body = data.split("\r\n\r\n")[1]
+        return body
     
     def sendall(self, data):
         self.socket.sendall(data.encode('utf-8'))

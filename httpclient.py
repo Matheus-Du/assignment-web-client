@@ -88,14 +88,13 @@ class HTTPClient(object):
         # receive the response and parse it into code, headers, and body
         response = self.recvall(self.socket)
         self.close()
-        # TODO: implement these functions by splitting the response (verify the format of the response first)
         headers = self.get_headers(response)
         code = self.get_code(response)
         body = self.get_body(response)
 
         # print the response as per requirements & return the response as an HTTPResponse object
         print("{}\n{}\n{}".format(code, headers, body))
-        return HTTPResponse(code, body)
+        return HTTPResponse(int(code), body)
 
     def POST(self, url, args=None):
         # if the command is POST, send a POST request to the server containing the body and return the response
@@ -108,11 +107,10 @@ class HTTPClient(object):
 
         # create the request and parse args
         # citation: GitHub copilot
-        request = "POST {} HTTP/1.1\r\nHost: {}\r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length: {}\r\nConnection: close\r\n\r\n".format(path, host, len(args))
         if args is None:
-            request += urllib.parse.urlencode("")
-        else:
-            request += urllib.parse.urlencode(args)
+            args = ""
+        request = "POST {} HTTP/1.1\r\nHost: {}\r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length: {}\r\nConnection: close\r\n\r\n".format(path, host, len(args))
+        request += urllib.parse.urlencode(args)
 
         # send the request and parse the response into code, headers, and body
         self.sendall(request)
@@ -124,7 +122,7 @@ class HTTPClient(object):
 
         # print the response as per requirements & return the response as an HTTPResponse object
         print("{}\n{}\n{}".format(code, headers, body))
-        return HTTPResponse(code, body)
+        return HTTPResponse(int(code), body)
     
     def parseURL(self, url):
         # parse the url into its components

@@ -72,22 +72,8 @@ class HTTPClient(object):
         body = ""
 
         # parse the url
-        parsed_url = urllib.parse.urlparse(url)
-        port = parsed_url.port
-        host = parsed_url.hostname
-
-        # if no port is specified, use the correct port depending on the scheme (443/80)
-        if port == None and parsed_url.scheme == "http":
-            port = 80
-        elif port == None and parsed_url.scheme == "https":
-            port = 443
-        
-        # connect to the host
+        host, port, path = self.parseURL(url)
         self.connect(host, port)
-        # set path
-        path = parsed_url.path
-        if parsed_url.path == "":
-            path = "/"
 
         # create and send the request
         request = "GET {} HTTP/1.1\r\nHost: {}\r\nAccept: */*\r\nConnection: close\r\n\r\n".format(path, host)
@@ -106,9 +92,33 @@ class HTTPClient(object):
         return HTTPResponse(code, body)
 
     def POST(self, url, args=None):
+        # if the command is POST, send a POST request to the server containing the body and return the response
         code = 500
         body = ""
+
+        # parse the url
+        host, port, path = self.parseURL(url)
+
         return HTTPResponse(code, body)
+    
+    def parseURL(self, url):
+        # parse the url into its components
+        parsed_url = urllib.parse.urlparse(url)
+        port = parsed_url.port
+        host = parsed_url.hostname
+
+        # if no port is specified, use the correct port depending on the scheme (443/80)
+        if port == None and parsed_url.scheme == "http":
+            port = 80
+        elif port == None and parsed_url.scheme == "https":
+            port = 443
+        
+        # set path
+        path = parsed_url.path
+        if parsed_url.path == "":
+            path = "/"
+
+        return host, port, path
 
     def command(self, url, command="GET", args=None):
         if (command == "POST"):
